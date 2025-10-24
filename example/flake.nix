@@ -1,8 +1,17 @@
 {
   inputs = {
     xnode-manager.url = "github:Openmesh-Network/xnode-manager";
-    xnode-rust-template.url = "github:Openmesh-Network/xnode-rust-template"; # "path:..";
-    nixpkgs.follows = "xnode-rust-template/nixpkgs";
+    miniapp-factory-coder.url = "github:OpenxAI-Network/miniapp-factory-coder";
+    nixpkgs.follows = "miniapp-factory-coder/nixpkgs";
+  };
+
+  nixConfig = {
+    extra-substituters = [
+      "https://openxai.cachix.org"
+    ];
+    extra-trusted-public-keys = [
+      "openxai.cachix.org-1:3evd2khRVc/2NiGwVmypAF4VAklFmOpMuNs1K28bMQE="
+    ];
   };
 
   outputs = inputs: {
@@ -19,9 +28,9 @@
             hostname = ./xnode-config/hostname;
           };
         }
-        inputs.xnode-rust-template.nixosModules.default
+        inputs.miniapp-factory-coder.nixosModules.default
         {
-          services.xnode-rust-template.enable = true;
+          services.miniapp-factory-coder.enable = true;
         }
       ];
     };

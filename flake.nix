@@ -1,5 +1,5 @@
 {
-  description = "Rust app running on Xnode!";
+  description = "Coder server for Miniapp Factory";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
