@@ -2,7 +2,7 @@ use std::fs::{create_dir_all, write};
 
 use crate::utils::{
     env::{datadir, model},
-    runner::execute_pending_deployments,
+    runner::execute_pending_deployment,
 };
 
 mod utils;
@@ -41,5 +41,5 @@ async fn main() {
         };
     }
 
-    execute_pending_deployments().await;
+    execute_pending_deployment().await;
 }

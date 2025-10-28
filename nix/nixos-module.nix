@@ -86,9 +86,7 @@ in
     };
 
     systemd.services.miniapp-factory-coder = {
-      wantedBy = [ "multi-user.target" ];
       description = "Coder server for Miniapp Factory";
-      after = [ "network.target" ];
       environment = {
         RUST_LOG = cfg.verbosity;
         DATADIR = cfg.dataDir;
