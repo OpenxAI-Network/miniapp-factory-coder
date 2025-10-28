@@ -1,7 +1,7 @@
 use std::fs::{create_dir_all, write};
 
 use crate::utils::{
-    env::{datadir, model},
+    env::{datadir, model, projectsdir},
     runner::execute_pending_deployment,
 };
 
@@ -17,6 +17,15 @@ async fn main() {
         if let Err(e) = create_dir_all(&dir) {
             log::error!(
                 "Could not create data dir at {dir}: {e}",
+                dir = dir.display()
+            )
+        };
+    }
+    {
+        let dir = projectsdir();
+        if let Err(e) = create_dir_all(&dir) {
+            log::error!(
+                "Could not create projects dir at {dir}: {e}",
                 dir = dir.display()
             )
         };

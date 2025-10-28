@@ -22,7 +22,7 @@ struct Output {
 }
 
 pub async fn execute_pending_deployment() {
-    let path = datadir().join("assignment.json");
+    let path: std::path::PathBuf = datadir().join("assignment.json");
     if let Some(assignment) = read_to_string(&path)
         .ok()
         .and_then(|assignment| serde_json::from_str::<Assignment>(&assignment).ok())
@@ -191,7 +191,7 @@ pub async fn execute_pending_deployment() {
             }
         };
 
-        if let Err(e) = write(&path, &file_content) {
+        if let Err(e) = write(datadir().join("assignment.json"), &file_content) {
             log::error!(
                 "Could not write {file_content} to {path}: {e}",
                 path = path.display()
