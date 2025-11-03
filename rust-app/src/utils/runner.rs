@@ -84,6 +84,8 @@ pub async fn execute_pending_deployment() {
             .arg("--disable-playwright")
             .arg("--no-detect-urls")
             .arg("--no-suggest-shell-commands")
+            .arg("--edit-format")
+            .arg("diff")
             .arg("--message")
             .arg(&assignment.instructions);
         match cli_command
