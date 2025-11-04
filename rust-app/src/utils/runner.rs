@@ -90,7 +90,6 @@ pub async fn execute_pending_deployment() {
             .arg("--edit-format")
             .arg("diff")
             .arg("--message")
-            .arg("--yes-always")
             .arg(&assignment.instructions);
         match cli_command
             .stdout(Stdio::null())
@@ -169,7 +168,7 @@ pub async fn execute_pending_deployment() {
             .arg("HEAD");
         let git_hash = match cli_command.output() {
             Ok(output) => match str::from_utf8(&output.stdout) {
-                Ok(git_hash) => git_hash.to_string(),
+                Ok(git_hash) => git_hash.replace("\n", ""),
                 Err(e) => {
                     panic!(
                         "Could convert git hash of {path} to utf8 string: {e}",
@@ -197,7 +196,8 @@ pub async fn execute_pending_deployment() {
             }
         };
 
-        if let Err(e) = write(datadir().join("assignment.json"), &file_content) {
+        let path = datadir().join("assignment.json");
+        if let Err(e) = write(&path, &file_content) {
             log::error!(
                 "Could not write {file_content} to {path}: {e}",
                 path = path.display()
