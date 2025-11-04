@@ -131,7 +131,7 @@ in
       user = "ollama";
       loadModels = [ cfg.model ];
       environmentVariables = {
-        OLLAMA_CONTEXT_LENGTH = "8192"; # From https://aider.chat/docs/llms/ollama.html#ollama
+        OLLAMA_CONTEXT_LENGTH = "32000"; # From https://aider.chat/docs/llms/ollama.html#ollama and https://docs.ollama.com/context-length
       };
     };
     systemd.services.ollama-model-loader.serviceConfig.User = "ollama";

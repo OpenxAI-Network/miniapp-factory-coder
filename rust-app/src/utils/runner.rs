@@ -90,6 +90,7 @@ pub async fn execute_pending_deployment() {
             .arg("--edit-format")
             .arg("diff")
             .arg("--message")
+            .arg("--yes-always")
             .arg(&assignment.instructions);
         match cli_command
             .stdout(Stdio::null())
