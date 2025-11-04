@@ -86,6 +86,7 @@ pub async fn execute_pending_deployment() {
             .arg("--disable-playwright")
             .arg("--no-detect-urls")
             .arg("--no-suggest-shell-commands")
+            .arg("--no-auto-accept-architect")
             .arg("--edit-format")
             .arg("diff")
             .arg("--message")
