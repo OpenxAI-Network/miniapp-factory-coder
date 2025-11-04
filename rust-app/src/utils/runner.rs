@@ -81,8 +81,6 @@ pub async fn execute_pending_deployment() {
             .arg("--auto-test")
             .arg("--read")
             .arg(path.join("documentation").join("index.md"))
-            .arg("--file")
-            .arg(project_path.join("lib").join("metadata.ts"))
             .arg("--disable-playwright")
             .arg("--no-detect-urls")
             .arg("--no-suggest-shell-commands")
