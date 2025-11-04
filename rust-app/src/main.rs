@@ -39,8 +39,6 @@ async fn main() {
             format!(
                 "\
 - name: ollama_chat/{model}
-  extra_params:
-    num_ctx: 32000
     ",
                 model = model()
             ),
