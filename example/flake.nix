@@ -3,6 +3,8 @@
     xnode-manager.url = "github:Openmesh-Network/xnode-manager";
     miniapp-factory-coder.url = "github:OpenxAI-Network/miniapp-factory-coder";
     nixpkgs.follows = "miniapp-factory-coder/nixpkgs";
+    host.url = "path:/etc/nixos";
+    host-nixpkgs.follows = "host/nixpkgs";
   };
 
   nixConfig = {
@@ -35,6 +37,14 @@
         inputs.miniapp-factory-coder.nixosModules.default
         (
           { pkgs, ... }@args:
+          let
+            host-pkgs = import inputs.host-nixpkgs {
+              system = pkgs.system;
+              config = {
+                allowUnfree = true;
+              };
+            };
+          in
           {
             services.miniapp-factory-coder.enable = true;
 
@@ -47,6 +57,7 @@
             };
             hardware.nvidia.open = true;
             services.xserver.videoDrivers = [ "nvidia" ];
+            hardware.nvidia.package = host-pkgs.linuxPackages.nvidiaPackages.stable;
           }
         )
       ];
