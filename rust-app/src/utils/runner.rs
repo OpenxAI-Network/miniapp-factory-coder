@@ -1,7 +1,8 @@
 use std::{
     fs::{read_to_string, remove_dir_all, write},
+    path::PathBuf,
     process::{Command, Stdio},
-    time::Duration,
+    time::{Duration, SystemTime},
 };
 
 use serde::{Deserialize, Serialize};
@@ -61,35 +62,8 @@ pub async fn execute_pending_deployment() {
         }
 
         let project_path = path.join("mini-app");
-        let mut cli_command = tokio::process::Command::new(format!("{}aider", aider()));
-        cli_command
-            .env("OLLAMA_API_BASE", "http://127.0.0.1:11434")
-            .env("HOME", datadir())
-            .current_dir(&project_path)
-            .arg("--model")
-            .arg(format!("ollama_chat/{model}", model = model()))
-            .arg("--model-settings-file")
-            .arg(datadir().join(".aider.model.settings.yml"))
-            .arg("--restore-chat-history")
-            .arg("--no-gitignore")
-            .arg("--test-cmd")
-            .arg(format!(
-                "{npm} i --cwd {path} --no-save && {npm} run --cwd {path} build",
-                path = project_path.display(),
-                npm = npm()
-            ))
-            .arg("--auto-test")
-            .arg("--read")
-            .arg(path.join("documentation").join("index.md"))
-            .arg("--disable-playwright")
-            .arg("--no-detect-urls")
-            .arg("--no-suggest-shell-commands")
-            .arg("--no-auto-lint")
-            .arg("--architect")
-            .arg("--edit-format")
-            .arg("diff")
-            .arg("--message")
-            .arg(&assignment.instructions);
+        let start_time = SystemTime::now();
+        let mut cli_command = get_aider_command(&path, &project_path, &assignment.instructions);
         match cli_command
             .stdout(Stdio::null())
             .stderr(Stdio::null())
@@ -124,6 +98,48 @@ pub async fn execute_pending_deployment() {
                     instructions = assignment.instructions,
                     project = assignment.project
                 );
+            }
+        }
+
+        if SystemTime::now()
+            .duration_since(start_time)
+            .expect("Time went backward")
+            .as_secs()
+            < 60
+        {
+            let mut cli_command = get_aider_command(&path, &project_path, "apply changes");
+            match cli_command
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .spawn()
+            {
+                Ok(mut child) => {
+                    match timeout(Duration::from_secs(20 * 60), child.wait()).await {
+                        Ok(output) => {
+                            if let Err(e) = output {
+                                log::error!(
+                                    "Could not perform apply changes fix on {project}: {e}",
+                                    project = assignment.project
+                                );
+                            }
+                        }
+                        Err(e) => {
+                            log::error!(
+                                "Hit the timeout for apply changes fix on {project}: {e}",
+                                project = assignment.project
+                            );
+                            if let Err(e) = child.kill().await {
+                                log::error!("Could not kill child process: {e}");
+                            }
+                        }
+                    };
+                }
+                Err(e) => {
+                    log::error!(
+                        "Could not spawn child for apply changes fix on {project}: {e}",
+                        project = assignment.project
+                    );
+                }
             }
         }
 
@@ -203,4 +219,42 @@ pub async fn execute_pending_deployment() {
             );
         }
     }
+}
+
+fn get_aider_command(
+    path: &PathBuf,
+    project_path: &PathBuf,
+    instructions: &str,
+) -> tokio::process::Command {
+    let mut cli_command = tokio::process::Command::new(format!("{}aider", aider()));
+    cli_command
+        .env("OLLAMA_API_BASE", "http://127.0.0.1:11434")
+        .env("HOME", datadir())
+        .current_dir(&project_path)
+        .arg("--model")
+        .arg(format!("ollama_chat/{model}", model = model()))
+        .arg("--model-settings-file")
+        .arg(datadir().join(".aider.model.settings.yml"))
+        .arg("--restore-chat-history")
+        .arg("--no-gitignore")
+        .arg("--test-cmd")
+        .arg(format!(
+            "{npm} i --cwd {path} --no-save && {npm} run --cwd {path} build",
+            path = project_path.display(),
+            npm = npm()
+        ))
+        .arg("--auto-test")
+        .arg("--read")
+        .arg(path.join("documentation").join("index.md"))
+        .arg("--disable-playwright")
+        .arg("--no-detect-urls")
+        .arg("--no-suggest-shell-commands")
+        .arg("--no-auto-lint")
+        .arg("--architect")
+        .arg("--edit-format")
+        .arg("diff")
+        .arg("--message")
+        .arg(instructions);
+
+    cli_command
 }
