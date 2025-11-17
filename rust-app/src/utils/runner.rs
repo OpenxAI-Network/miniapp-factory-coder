@@ -105,7 +105,7 @@ pub async fn execute_pending_deployment() {
             .duration_since(start_time)
             .expect("Time went backward")
             .as_secs()
-            < 60
+            < 90
         {
             let mut cli_command = get_aider_command(&path, &project_path, "apply changes");
             match cli_command
