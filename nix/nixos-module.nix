@@ -134,8 +134,5 @@ in
         OLLAMA_CONTEXT_LENGTH = "32000"; # From https://aider.chat/docs/llms/ollama.html#ollama and https://docs.ollama.com/context-length
       };
     };
-    systemd.services.ollama-model-loader.serviceConfig.User = "ollama";
-    systemd.services.ollama-model-loader.serviceConfig.Group = "ollama";
-    systemd.services.ollama-model-loader.serviceConfig.DynamicUser = lib.mkForce false;
   };
 }
